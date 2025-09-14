@@ -13,6 +13,7 @@ const MatchSchema = new mongoose.Schema({
   currentQuestionIndex: { type: Number, default: 0 },
   winner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   status: { type: String, enum: ['waiting', 'active', 'completed'], default: 'waiting' },
+  gameStarted: { type: Boolean, default: false }, // Add this field
   createdAt: { type: Date, default: Date.now },
 });
 

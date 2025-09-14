@@ -7,17 +7,19 @@ import { supabase } from '@/lib/superbase';
 
 export async function POST(
   request: Request,
-  { params }: { params: { matchId: string } }
+  { params }: { params: Promise<{ matchId: string }> }
 ) {
   try {
+    const { matchId } = await params; // FIX: await params
     const session = await getServerSession(authOptions);
+    
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
     
-    const match = await Match.findById(params.matchId);
+    const match = await Match.findById(matchId);
     
     if (!match) {
       return NextResponse.json({ error: 'Match not found' }, { status: 404 });
@@ -29,7 +31,7 @@ export async function POST(
       await match.save();
 
       // Broadcast player joined event
-      await supabase.channel(`realtime-match-${params.matchId}`)
+      await supabase.channel(`realtime-match-${matchId}`)
         .send({
           type: 'broadcast',
           event: 'player-joined',

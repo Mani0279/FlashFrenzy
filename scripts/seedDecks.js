@@ -1,9 +1,8 @@
-// scripts/seedDecks.js
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 
-// Read .env.local file manually (no dotenv dependency needed)
+// Read .env.local file manually
 function loadEnvFile() {
   try {
     const envPath = path.join(__dirname, '..', '.env.local');
@@ -25,10 +24,8 @@ function loadEnvFile() {
   }
 }
 
-// Load environment variables
 loadEnvFile();
 
-// Define the schema directly in the seed script (no imports needed)
 const CardSchema = new mongoose.Schema({
   question: { type: String, required: true },
   answer: { type: String, required: true },
@@ -40,7 +37,6 @@ const FlashcardDeckSchema = new mongoose.Schema({
   cards: [CardSchema],
 }, { timestamps: true });
 
-// Create the model directly
 const FlashcardDeck = mongoose.models.FlashcardDeck || mongoose.model('FlashcardDeck', FlashcardDeckSchema);
 
 const sampleDecks = [
@@ -48,7 +44,7 @@ const sampleDecks = [
     name: "Basic Math",
     description: "Simple arithmetic questions",
     cards: [
-      { question: "What is 2 + 2?", answer: "4" },
+      { question: "What is 2 + 2?", answer: "4" }, // Make sure answers are strings
       { question: "What is 5 * 3?", answer: "15" },
       { question: "What is 10 - 7?", answer: "3" },
       { question: "What is 8 / 2?", answer: "4" },
@@ -103,30 +99,31 @@ async function seedDecks() {
   try {
     console.log('🚀 Starting to seed flashcard decks...');
     
-    // Check if MongoDB URI exists
     if (!process.env.MONGODB_URI) {
       console.error('❌ MONGODB_URI not found in environment variables');
       console.log('Make sure you have MONGODB_URI in your .env.local file');
       process.exit(1);
     }
 
-    // Connect to MongoDB
     console.log('📡 Connecting to MongoDB...');
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('✅ Connected to MongoDB successfully');
 
-    // Clear existing decks (optional - comment out if you want to keep existing data)
     console.log('🧹 Clearing existing decks...');
     const deleteResult = await FlashcardDeck.deleteMany({});
     console.log(`🗑️  Deleted ${deleteResult.deletedCount} existing decks`);
 
-    // Insert new decks
     console.log('📚 Inserting sample decks...');
     const insertedDecks = await FlashcardDeck.insertMany(sampleDecks);
     
     console.log(`✅ Successfully inserted ${insertedDecks.length} decks:`);
     insertedDecks.forEach((deck, index) => {
       console.log(`   ${index + 1}. ${deck.name} (${deck.cards.length} cards)`);
+      
+      // Debug: Show first card of each deck
+      if (deck.cards.length > 0) {
+        console.log(`      Example: Q: "${deck.cards[0].question}" A: "${deck.cards[0].answer}"`);
+      }
     });
 
     console.log('\n🎉 Database seeding completed successfully!');
@@ -144,5 +141,4 @@ async function seedDecks() {
   }
 }
 
-// Run the seeding function
 seedDecks();
