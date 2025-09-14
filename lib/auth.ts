@@ -88,15 +88,3 @@ export const authOptions: NextAuthOptions = {
   // Add secret
   secret: process.env.NEXTAUTH_SECRET,
 };
-
-// 2. Update middleware.ts to fix protected routes
-export { default } from "next-auth/middleware"
-
-export const config = {
-  matcher: [
-    // Protect these routes
-    "/lobby/:path*",
-    "/match/:path*", 
-    "/history/:path*"
-  ]
-}
