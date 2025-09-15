@@ -69,7 +69,6 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    // Fix redirect callback
     async redirect({ url, baseUrl }) {
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
@@ -79,12 +78,10 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: '/auth/signin', // Create custom sign-in page
+    signIn: '/auth/signin',
   },
-  // Add session configuration
   session: {
     strategy: 'jwt',
   },
-  // Add secret
   secret: process.env.NEXTAUTH_SECRET,
 };

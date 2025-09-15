@@ -23,7 +23,7 @@ export async function GET() {
     .sort({ createdAt: -1 });
     
     return NextResponse.json(matches);
-  } catch (_error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch match history' }, { status: 500 });
   }
 }
