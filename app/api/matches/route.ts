@@ -5,6 +5,17 @@ import connectDB from '@/lib/mongodb';
 import Match from '@/lib/models/Match';
 import FlashcardDeck from '@/lib/models/FlashcardDeck';
 
+interface Card {
+  question: string;
+  answer: string;
+}
+
+interface MatchQuestion {
+  question: string;
+  answer: string;
+  answered: boolean;
+}
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -25,7 +36,7 @@ export async function POST(request: Request) {
       deckId,
       players: [session.user.id],
       scores: { [session.user.id]: 0 },
-      questions: deck.cards.map((card: any) => ({
+      questions: deck.cards.map((card: Card): MatchQuestion => ({
         question: card.question,
         answer: card.answer,
         answered: false
@@ -33,7 +44,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ matchId: match._id });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to create match' }, { status: 500 });
   }
 }

@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 
 interface HistoryMatch {
   _id: string;
-  deckId: { name: string };
+  deckId: { name: string } | null;
   players: { _id: string; name: string }[];
   scores: Record<string, number>;
   winner: { _id: string; name: string } | null;
@@ -47,6 +47,10 @@ export default function History() {
     return scores.indexOf(userScore) + 1;
   };
 
+  const getDeckName = (deckId: { name: string } | null) => {
+    return deckId?.name || 'Unknown Deck';
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading history...</div>;
   }
@@ -79,7 +83,7 @@ export default function History() {
                 onClick={() => setSelectedMatch(match)}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold">{match.deckId.name}</h3>
+                  <h3 className="font-semibold">{getDeckName(match.deckId)}</h3>
                   <span className={`text-sm px-2 py-1 rounded ${
                     match.winner?._id === session?.user?.id 
                       ? 'bg-green-100 text-green-800' 
@@ -90,7 +94,7 @@ export default function History() {
                 </div>
                 
                 <div className="text-sm text-gray-600 space-y-1">
-                  <p>Players: {match.players.map(p => p.name).join(', ')}</p>
+                  <p>Players: {match.players?.map(p => p?.name || 'Unknown Player').join(', ')}</p>
                   <p>Your Score: {getUserScore(match, session?.user?.id || '')}</p>
                   <p>Date: {new Date(match.createdAt).toLocaleDateString()}</p>
                 </div>
@@ -104,12 +108,25 @@ export default function History() {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-semibold mb-4">Match Details</h2>
                 
+                {/* Match Info */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-medium mb-2">Match Information</h3>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-medium">Deck:</span> {getDeckName(selectedMatch.deckId)}</p>
+                    <p><span className="font-medium">Date:</span> {new Date(selectedMatch.createdAt).toLocaleDateString()}</p>
+                    <p><span className="font-medium">Duration:</span> {selectedMatch.questions?.length || 0} questions</p>
+                    {selectedMatch.winner && (
+                      <p><span className="font-medium">Winner:</span> {selectedMatch.winner.name} 🏆</p>
+                    )}
+                  </div>
+                </div>
+                
                 {/* Final Scoreboard */}
                 <div className="mb-6">
                   <h3 className="font-medium mb-3">Final Scores</h3>
                   <div className="space-y-2">
                     {selectedMatch.players
-                      .sort((a, b) => (selectedMatch.scores[b._id] || 0) - (selectedMatch.scores[a._id] || 0))
+                      ?.sort((a, b) => (selectedMatch.scores[b._id] || 0) - (selectedMatch.scores[a._id] || 0))
                       .map((player, index) => (
                         <div
                           key={player._id}
@@ -119,7 +136,7 @@ export default function History() {
                         >
                           <div className="flex items-center space-x-2">
                             <span className="font-medium">#{index + 1}</span>
-                            <span>{player.name}</span>
+                            <span>{player?.name || 'Unknown Player'}</span>
                             {index === 0 && <span>🏆</span>}
                             {player._id === session?.user?.id && (
                               <span className="text-sm text-blue-600">(You)</span>
@@ -132,17 +149,23 @@ export default function History() {
                 </div>
 
                 {/* Questions and Answers */}
-                <div>
-                  <h3 className="font-medium mb-3">Questions ({selectedMatch.questions.length})</h3>
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {selectedMatch.questions.map((q, index) => (
-                      <div key={index} className="border rounded-lg p-3">
-                        <div className="font-medium mb-1">Q{index + 1}: {q.question}</div>
-                        <div className="text-green-600">A: {q.answer}</div>
-                      </div>
-                    ))}
+                {selectedMatch.questions && selectedMatch.questions.length > 0 && (
+                  <div>
+                    <h3 className="font-medium mb-3">Questions ({selectedMatch.questions.length})</h3>
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {selectedMatch.questions.map((q, index) => (
+                        <div key={index} className="border rounded-lg p-3">
+                          <div className="font-medium mb-1">
+                            Q{index + 1}: {q?.question || 'Question not available'}
+                          </div>
+                          <div className="text-green-600">
+                            A: {q?.answer || 'Answer not available'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ) : (
               <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">

@@ -44,7 +44,7 @@ export async function POST(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to join match' }, { status: 500 });
   }
 }

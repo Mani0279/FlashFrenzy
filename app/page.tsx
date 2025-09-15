@@ -1,4 +1,4 @@
-// app/page.tsx - Hydration-safe version without problematic animations
+// app/page.tsx - Fixed hydration-safe version
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import Link from 'next/link';
@@ -12,7 +12,6 @@ import {
   Trophy, 
   Zap, 
   Users, 
-  Target, 
   Play, 
   Crown, 
   Timer, 
@@ -29,10 +28,18 @@ export default async function Home() {
   const session = await getServerSession(authOptions);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Static background - no animations */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10"></div>
-      <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-transparent via-slate-700/20 to-transparent"></div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Single consolidated background layer */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: `
+            linear-gradient(135deg, rgb(15 23 42) 0%, rgb(88 28 135) 50%, rgb(15 23 42) 100%),
+            linear-gradient(90deg, rgba(37 99 235, 0.1) 0%, rgba(147 51 234, 0.1) 33%, rgba(236 72 153, 0.1) 100%),
+            linear-gradient(90deg, transparent 0%, rgba(51 65 85, 0.2) 50%, transparent 100%)
+          `
+        }}
+      />
       
       {/* Hero Section */}
       <div className="relative z-10">

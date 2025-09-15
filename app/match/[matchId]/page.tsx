@@ -8,16 +8,28 @@ import Flashcard from '@/components/Flashcard';
 import AnswerInput from '@/components/AnswerInput';
 import Scoreboard from '@/components/Scoreboard';
 import PlayersList from '@/components/PlayersList';
+import { RealtimeChannel } from '@supabase/supabase-js';
+
+interface Player {
+  _id: string;
+  name: string;
+}
+
+interface Question {
+  question: string;
+  answer: string;
+  answered?: boolean;
+}
 
 interface Match {
   _id: string;
-  players: { _id: string; name: string }[];
+  players: Player[];
   scores: Record<string, number>;
-  questions: { question: string; answer: string; answered?: boolean }[];
+  questions: Question[];
   currentQuestionIndex: number;
   status: 'waiting' | 'active' | 'completed';
   gameStarted?: boolean;
-  winner?: { _id: string; name: string };
+  winner?: Player;
 }
 
 export default function GameRoom() {
@@ -25,7 +37,7 @@ export default function GameRoom() {
   const params = useParams();
   const router = useRouter();
   const matchId = params.matchId as string;
-  const channelRef = useRef<any>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   const [match, setMatch] = useState<Match | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<string>('');
@@ -58,8 +70,8 @@ export default function GameRoom() {
           }
         }
       }
-    } catch (error) {
-      console.error('Failed to fetch match:', error);
+    } catch (_error) {
+      console.error('Failed to fetch match:', _error);
     } finally {
       setLoading(false);
     }

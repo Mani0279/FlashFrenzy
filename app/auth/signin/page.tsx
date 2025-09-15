@@ -1,11 +1,23 @@
 'use client';
 
-import { getProviders, signIn, getSession } from 'next-auth/react';
+import { getProviders, signIn } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
+interface Provider {
+  id: string;
+  name: string;
+  type: string;
+  signinUrl: string;
+  callbackUrl: string;
+}
+
+interface Providers {
+  [key: string]: Provider;
+}
+
 export default function SignIn() {
-  const [providers, setProviders] = useState<any>(null);
+  const [providers, setProviders] = useState<Providers | null>(null);
   const [loading, setLoading] = useState(false);
   const [credentials, setCredentials] = useState({ email: '', name: '' });
   const searchParams = useSearchParams();

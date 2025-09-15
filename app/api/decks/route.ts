@@ -9,7 +9,7 @@ export async function GET() {
     const decks = await FlashcardDeck.find({}).select('name description');
     
     return NextResponse.json(decks);
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to fetch decks' }, { status: 500 });
   }
 }
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     });
     
     return NextResponse.json(deck, { status: 201 });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to create deck' }, { status: 500 });
   }
 }
