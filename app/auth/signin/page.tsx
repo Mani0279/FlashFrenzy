@@ -19,15 +19,18 @@ interface Providers {
 export default function SignIn() {
   const [providers, setProviders] = useState<Providers | null>(null);
   const [loading, setLoading] = useState(false);
-  const [credentials, setCredentials] = useState({ email: '', name: '' });
+  const [credentials, setCredentials] = useState<{ email: string; name: string }>({ email: '', name: '' });
+
   const searchParams = useSearchParams();
   const router = useRouter();
-  const callbackUrl = searchParams.get('callbackUrl') || '/lobby';
+
+  // Get the callbackUrl as a string or fallback to '/lobby'
+  const callbackUrl: string = searchParams.get('callbackUrl') ?? '/lobby';
 
   useEffect(() => {
     const fetchProviders = async () => {
       const res = await getProviders();
-      setProviders(res);
+      setProviders(res as Providers);
     };
     fetchProviders();
   }, []);
@@ -36,10 +39,9 @@ export default function SignIn() {
     setLoading(true);
     try {
       const result = await signIn('google', { 
-        callbackUrl: callbackUrl,
-        redirect: false 
+        callbackUrl,
+        redirect: false,
       });
-      
       if (result?.ok) {
         router.push(callbackUrl);
       } else {
@@ -52,18 +54,16 @@ export default function SignIn() {
     }
   };
 
-  const handleCredentialsSignIn = async (e: React.FormEvent) => {
+  const handleCredentialsSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    
     try {
       const result = await signIn('credentials', {
         email: credentials.email,
         name: credentials.name,
-        callbackUrl: callbackUrl,
-        redirect: false
+        callbackUrl,
+        redirect: false,
       });
-      
       if (result?.ok) {
         router.push(callbackUrl);
       } else {
@@ -87,7 +87,6 @@ export default function SignIn() {
             Join the multiplayer flashcard battle!
           </p>
         </div>
-        
         <div className="space-y-6">
           {/* Google Sign In */}
           {providers?.google && (
@@ -99,7 +98,6 @@ export default function SignIn() {
               {loading ? 'Signing in...' : 'Sign in with Google'}
             </button>
           )}
-
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
@@ -108,7 +106,6 @@ export default function SignIn() {
               <span className="px-2 bg-gray-50 text-gray-500">Or continue with</span>
             </div>
           </div>
-
           {/* Email/Name Sign In */}
           <form className="space-y-6" onSubmit={handleCredentialsSignIn}>
             <div>
@@ -141,7 +138,6 @@ export default function SignIn() {
                 onChange={(e) => setCredentials(prev => ({ ...prev, email: e.target.value }))}
               />
             </div>
-
             <div>
               <button
                 type="submit"
